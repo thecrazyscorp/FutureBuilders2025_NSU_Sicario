@@ -190,10 +190,22 @@ body {
 <body>
 
 <!-- Navbar -->
+<?php
+session_start();
+
+// Check if user is logged in
+$login_redirect = 'login.php';
+if(isset($_SESSION['user_id']) && $_SESSION['role'] === 'patient'){
+    $login_redirect = 'patient_dashboard.php';
+} elseif(isset($_SESSION['user_id']) && $_SESSION['role'] === 'doctor'){
+    $login_redirect = 'doctor_dashboard.php';
+}
+?>
 <nav class="navbar">
     <div class="logo">🩺 ShasthoBondhu</div>
-    <a href="login.php" class="btn-login">Login</a>
+    <a href="<?= $login_redirect ?>" class="btn-login">Login</a>
 </nav>
+
 
 <!-- Hero Section -->
 <section class="hero">

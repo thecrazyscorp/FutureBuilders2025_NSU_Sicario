@@ -101,7 +101,7 @@ body { margin:0; background:#f8fafc; color:#1f2937; }
 .doctor-meta { font-size:14px; color:#374151; margin-bottom:10px; }
 .navbar { display:flex; justify-content:space-between; align-items:center; padding:18px 8%; background:#ffffff; box-shadow:0 2px 10px rgba(0,0,0,0.05);}
 .logo { font-size:22px; font-weight:700; color:#0f766e; }
-.btn-login { border:2px solid #0f766e; color:#0f766e; padding:8px 18px; border-radius:8px; text-decoration:none; font-weight:600;}
+.btn-logout { border:2px solid #0f766e; color:#0f766e; padding:8px 18px; border-radius:8px; text-decoration:none; font-weight:600;}
 @media(max-width:900px){.container{grid-template-columns:1fr;}.sidebar{border-right:none;border-bottom:1px solid #e5e7eb;}}
 </style>
 </head>
@@ -109,7 +109,7 @@ body { margin:0; background:#f8fafc; color:#1f2937; }
 
 <nav class="navbar">
     <div class="logo">🩺 ShasthoBondhu</div>
-    <a href="login.php" class="btn-login">Login</a>
+    <a href="logout.php" class="btn-logout">Logout</a>
 </nav>
 
 <div class="container">
@@ -177,7 +177,7 @@ body { margin:0; background:#f8fafc; color:#1f2937; }
     <?php else: ?>
         <div class="card">
             <h3>No Cases Yet</h3>
-            <div class="value">You have not submitted any cases yet. <a href="patient.php">Submit your first case</a>.</div>
+            <div class="value">You have not submitted any cases yet. <a href="submit_case.php">Submit your first case</a>.</div>
         </div>
     <?php endif; ?>
 

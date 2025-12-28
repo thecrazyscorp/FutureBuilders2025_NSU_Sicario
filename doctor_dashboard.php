@@ -91,16 +91,17 @@ $stmt->bind_param("is", $doctor_id, $doctor['specialty']);
 $stmt->execute();
 $cases = $stmt->get_result();
 
-// Get statistics
+// Get statistics - FIXED QUERY
 $stats_query = "SELECT 
                     COUNT(*) as total,
                     SUM(CASE WHEN severity = 'RED' THEN 1 ELSE 0 END) as red_count,
                     SUM(CASE WHEN severity = 'YELLOW' THEN 1 ELSE 0 END) as yellow_count,
                     SUM(CASE WHEN severity = 'GREEN' THEN 1 ELSE 0 END) as green_count
                 FROM cases 
-                WHERE assigned_doctor_id = ? AND status NOT IN ('closed')";
+                WHERE (assigned_doctor_id = ? OR (status = 'submitted' AND suggested_specialty = ?))
+                AND status NOT IN ('closed')";
 $stmt = $conn->prepare($stats_query);
-$stmt->bind_param("i", $doctor_id);
+$stmt->bind_param("is", $doctor_id, $doctor['specialty']);
 $stmt->execute();
 $stats = $stmt->get_result()->fetch_assoc();
 

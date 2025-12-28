@@ -869,9 +869,8 @@ input:checked + .slider:before {
                             Send Reply
                         </button>
                         <button class="btn btn-history" onclick="openHistoryModal(<?php echo $case['patient_id']; ?>, '<?php echo htmlspecialchars($case['patient_name'], ENT_QUOTES); ?>')">
-                            📋 Medical History
+                            Medical History
                         </button>
-                        <a href="case_detail.php?id=<?php echo $case['id']; ?>" class="btn btn-secondary">View Full Details</a>
                     </div>
                 </div>
             <?php endwhile; ?>
@@ -929,7 +928,7 @@ input:checked + .slider:before {
 <div id="historyModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>📋 Medical History: <span id="historyPatientName"></span></h3>
+            <h3>Medical History: <span id="historyPatientName"></span></h3>
             <span class="close" onclick="closeHistoryModal()">&times;</span>
         </div>
         

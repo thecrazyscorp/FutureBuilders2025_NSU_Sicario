@@ -14,13 +14,21 @@ In the sprawling greens of Bangladesh's hill tracts and the distant stretches of
 
 <h2>Solution Overview: </h2>
 
-In Bangladesh’s hill tracts and rural villages, access to healthcare is often limited by long travel distances, difficult terrain, and unreliable internet connectivity. For many communities, reaching medical support is a time-consuming and uncertain process.
+In Bangladesh’s hill tracts and rural villages, access to healthcare is often limited by difficult terrain, long travel distances, and unreliable internet connectivity. To address this challenge, we built a lightweight web-based healthcare triage and referral system using basic HTML and CSS, a PHP backend, and a MySQL database, ensuring accessibility on low-end devices and slow networks.
 
-To address this challenge, we built a lightweight web application using basic HTML and CSS with a MySQL-backed backend, ensuring fast loading and accessibility even on low-end devices and weak networks. The system integrates an AI-assisted health triage module that collects patient symptoms, identifies urgency levels, and generates a structured report for doctors.
+The system integrates a locally running AI health assistant to support early assessment and case prioritization. Instead of relying on cloud-based or paid APIs, all AI components run locally, making the solution cost-effective, privacy-friendly, and reliable in low-resource environments.
 
-Instead of replacing medical professionals, the AI acts as a support tool, helping prioritize cases and streamline doctor review. Doctors access assigned cases through a dashboard, review patient medical history, and send diagnoses or recommendations back to patients asynchronously.
+Patients submit symptoms through text or voice input. The AI assistant generates a clear, non-diagnostic summary, assigns an urgency level (Green / Yellow / Red), and routes the case to an appropriate doctor. Doctors then review the case, access the patient’s medical history, and send diagnoses or recommendations back to the patient asynchronously.
 
-This approach enables efficient use of limited medical resources while maintaining safety, simplicity, and real-world usability in low-resource rural settings.
+The AI acts strictly as a support tool, helping doctors prioritize and understand cases faster, while all medical decisions remain with licensed professionals.
+
+We use local AI tools to avoid dependency on external services:
+
+<li>
+  <item> Whisper (local, Python): Converts patient audio input into English text </item>
+  <item> Ollama + LLaMA2-7B: Generates calm, human-readable medical explanations (no diagnosis, no prescriptions)</item>
+  <item>Rule-based logic (PHP): Assigns severity (GREEN / YELLOW / RED) and suggests doctor specialty based on keywords</item>
+</li>
 
 <h2>Technologies Used:</h2>
 Frontend: HTML, CSS, JavaScript
@@ -32,4 +40,8 @@ Database: MySQL
 2. Claude AI
 
 <h2> Handling Limited Internet Access: </h2>
-We intentionally kept the system simple and fast: the UI is built with basic HTML and CSS (mobile-friendly), uses minimal JavaScript only for form handling and small interactions, and stores all data in a MySQL database.
+To ensure usability in rural and remote areas with unstable connectivity, the system is intentionally designed to be lightweight and resilient. The user interface is built using basic HTML and CSS with minimal JavaScript, allowing pages to load quickly even on slow networks and low-end devices.
+
+To prevent data loss during network interruptions, the application includes an offline submission mechanism. When internet connectivity is unavailable, patient case data is stored locally in the browser. Once the connection is restored, the system automatically submits the stored case for doctor review. This ensures that patients can still report symptoms without needing continuous internet access.
+
+This approach makes the system reliable and practical for real-world use in low-resource rural settings.

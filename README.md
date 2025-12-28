@@ -2,7 +2,7 @@
 
 <h2>Team name: NSU_Sicario</h2>
 <h2>Members: </h2>
-1. Avradip Dutta Charu
+1. Avradip Datta Charu
 2. Farhana Rahman
 3. Faheema Shaheed Tamanna
 

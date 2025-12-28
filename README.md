@@ -24,11 +24,10 @@ The AI acts strictly as a support tool, helping doctors prioritize and understan
 
 We use local AI tools to avoid dependency on external services:
 
-<li>
-  <item> Whisper (local, Python): Converts patient audio input into English text </item>
-  <item> Ollama + LLaMA2-7B: Generates calm, human-readable medical explanations (no diagnosis, no prescriptions)</item>
-  <item>Rule-based logic (PHP): Assigns severity (GREEN / YELLOW / RED) and suggests doctor specialty based on keywords</item>
-</li>
+<li> <item> Whisper (local, Python): Converts patient audio input into English text </li>
+<li> Ollama + LLaMA2-7B: Generates calm, human-readable medical explanations (no diagnosis, no prescriptions)</li>
+<li>Rule-based logic (PHP): Assigns severity (GREEN / YELLOW / RED) and suggests doctor specialty based on keywords</li>
+
 <img width="1920" height="1080" alt="601331056_900450112554674_3001598655329220307_n" src="https://github.com/user-attachments/assets/11b14f72-2e07-49ec-97ba-bf6b16f1013c" />
 <img width="1920" height="1080" alt="607388757_1414327960257828_8909749231302933761_n" src="https://github.com/user-attachments/assets/211d60e0-460c-4763-8b7b-632388979252" />
 <img width="1920" height="1080" alt="608013260_1195191595922647_5670364376952844700_n (1)" src="https://github.com/user-attachments/assets/fb70dce2-0c8b-46f9-b1b5-dc46285022ca" />

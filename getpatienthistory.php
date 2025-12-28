@@ -75,14 +75,6 @@ while ($case = $cases->fetch_assoc()) {
         echo '</div>';
     }
     
-    // Display additional notes if available
-    if ($case['additional_notes']) {
-        echo '<div class="case-section">';
-        echo '<div class="case-label">Notes</div>';
-        echo '<div class="case-text">' . nl2br(htmlspecialchars($case['additional_notes'])) . '</div>';
-        echo '</div>';
-    }
-    
     // Display AI summary
     if ($case['ai_summary']) {
         echo '<div class="case-section">';

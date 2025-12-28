@@ -290,7 +290,7 @@ function getStatusStyle($status) {
                     <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
                     <div style="font-size: 16px; margin-bottom: 10px;">No cases yet</div>
                     <div style="font-size: 14px; margin-bottom: 20px;">Submit your first case to get medical advice</div>
-                    <a href="submit_case.php" style="display: inline-block; background: #4CAF50; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">Submit Case</a>
+                    <a href="homepage.php" style="display: inline-block; background: #4CAF50; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">Submit Case</a>
                 </div>
             <?php else: ?>
                 <div style="overflow-x: auto;">

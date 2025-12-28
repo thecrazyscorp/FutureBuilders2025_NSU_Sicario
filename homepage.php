@@ -490,6 +490,10 @@ body {
         <p>⚠️ This is an AI assistant for initial assessment only. It does not replace professional medical advice.</p>
     </div>
 </div>
+<div id="networkStatus" style="text-align:center;font-size:13px;color:#6b7280;margin-top:8px;">
+    📡 Checking network…
+</div>
+
 
 <!-- Hidden Form for Submission -->
 <form method="POST" id="caseForm" class="hidden-form">
@@ -506,6 +510,23 @@ body {
 
 <script>
 // Chat state
+
+// ---------- OFFLINE STORAGE HELPERS ----------
+const OFFLINE_CASE_KEY = 'offline_pending_case';
+
+function saveCaseOffline(caseData) {
+    localStorage.setItem(OFFLINE_CASE_KEY, JSON.stringify(caseData));
+}
+
+function getOfflineCase() {
+    const data = localStorage.getItem(OFFLINE_CASE_KEY);
+    return data ? JSON.parse(data) : null;
+}
+
+function clearOfflineCase() {
+    localStorage.removeItem(OFFLINE_CASE_KEY);
+}
+
 let conversationHistory = [];
 let symptomsData = {};
 let isRecording = false;
@@ -692,33 +713,59 @@ function processUserMessage(message) {
 
 // Submit case to database
 function submitCase() {
-    // Prepare data
     const symptomsJson = JSON.stringify(symptomsData);
     const specialty = determineSpecialty(symptomsData.chief_complaint);
     const redFlags = detectRedFlags(symptomsData);
     const aiSummary = generateAiSummary();
     const aiExplanation = generateExplanation();
-    
-    // Fill hidden form
-    document.getElementById('formChiefComplaint').value = symptomsData.chief_complaint;
-    document.getElementById('formSymptoms').value = symptomsJson;
-    document.getElementById('formNotes').value = JSON.stringify(conversationHistory);
-    document.getElementById('formSeverity').value = symptomsData.severity || 'YELLOW';
-    document.getElementById('formSpecialty').value = specialty;
-    document.getElementById('formRedFlags').value = JSON.stringify(redFlags);
-    document.getElementById('formAiSummary').value = aiSummary;
-    document.getElementById('formAiExplanation').value = aiExplanation;
-    
+
+    const casePayload = {
+        chief_complaint: symptomsData.chief_complaint,
+        symptoms: symptomsJson,
+        additional_notes: JSON.stringify(conversationHistory),
+        severity: symptomsData.severity || 'YELLOW',
+        suggested_specialty: specialty,
+        red_flags: JSON.stringify(redFlags),
+        ai_summary: aiSummary,
+        ai_explanation: aiExplanation
+    };
+
     hideAnalyzing();
-    
-    // Show final message
-    addMessage(`✅ Your case has been created and assigned to a ${specialty} specialist. You'll be redirected to view your case details.`);
-    
-    // Submit form after 2 seconds
+
+    // 🛑 OFFLINE MODE
+    if (!navigator.onLine) {
+        saveCaseOffline(casePayload);
+
+        addMessage(
+            "📶 Internet connection is unstable. Your symptoms have been saved safely and will be submitted automatically when the connection is restored."
+        );
+
+        return;
+    }
+
+    // ✅ ONLINE MODE → submit now
+    submitCaseForm(casePayload);
+}
+
+
+function submitCaseForm(casePayload) {
+    document.getElementById('formChiefComplaint').value = casePayload.chief_complaint;
+    document.getElementById('formSymptoms').value = casePayload.symptoms;
+    document.getElementById('formNotes').value = casePayload.additional_notes;
+    document.getElementById('formSeverity').value = casePayload.severity;
+    document.getElementById('formSpecialty').value = casePayload.suggested_specialty;
+    document.getElementById('formRedFlags').value = casePayload.red_flags;
+    document.getElementById('formAiSummary').value = casePayload.ai_summary;
+    document.getElementById('formAiExplanation').value = casePayload.ai_explanation;
+
+    addMessage("✅ Submitting your case for doctor review…");
+
     setTimeout(() => {
         document.getElementById('caseForm').submit();
-    }, 2000);
+    }, 1500);
 }
+
+
 
 // Determine specialty based on symptoms
 function determineSpecialty(complaint) {
@@ -786,6 +833,32 @@ function toggleVoice() {
         voiceBtn.innerHTML = '🎤';
     }
 }
+
+// ---------- AUTO SUBMIT WHEN ONLINE ----------
+window.addEventListener('online', () => {
+    const pendingCase = getOfflineCase();
+    if (!pendingCase) return;
+
+    addMessage("📡 Internet connection restored. Submitting your saved case now…");
+
+    clearOfflineCase();
+    submitCaseForm(pendingCase);
+});
+function updateNetworkStatus() {
+    const el = document.getElementById('networkStatus');
+    if (!el) return;
+
+    if (navigator.onLine) {
+        el.textContent = '🟢 Online';
+    } else {
+        el.textContent = '🔴 Offline — your input will be saved';
+    }
+}
+
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+updateNetworkStatus();
+
 </script>
 
 </body>

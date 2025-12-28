@@ -198,7 +198,7 @@ function getStatusStyle($status) {
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
 
-<?php if (($results)): ?>
+<?php if ((!empty($results))): ?>
 
     <div style="background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

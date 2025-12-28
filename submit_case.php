@@ -921,20 +921,56 @@ function handleKeyPress(event) {
 
 
 // Voice input toggle (placeholder)
+let recognition;
+
 function toggleVoice() {
     const voiceBtn = document.getElementById('voiceBtn');
-    isRecording = !isRecording;
-   
+
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        alert('Your browser does not support speech recognition.');
+        return;
+    }
+
     if (isRecording) {
-        voiceBtn.classList.add('recording');
-        voiceBtn.innerHTML = '⏹️';
-        // Here you would integrate actual speech recognition
-        // For now, just show a message
-        setTimeout(() => {
-            toggleVoice();
-            addMessage("(Voice recognition would be integrated here)", true);
-        }, 3000);
-    } else {
+        // Stop recording safely
+        recognition.stop();
+        return;
+    }
+
+    isRecording = true;
+    voiceBtn.classList.add('recording');
+    voiceBtn.innerHTML = '⏹️';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+
+    recognition.lang = 'en-US'; // English only
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        // Add to chat box and input field
+        addMessage(transcript, true);
+        document.getElementById('chatInput').value = transcript;
+        sendMessage();
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        alert('Speech recognition error: ' + event.error);
+        stopRecording();
+    };
+
+    recognition.onend = () => {
+        // Ensure we reset recording state
+        stopRecording();
+    };
+
+    function stopRecording() {
+        isRecording = false;
         voiceBtn.classList.remove('recording');
         voiceBtn.innerHTML = '🎤';
     }

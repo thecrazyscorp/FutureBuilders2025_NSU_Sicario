@@ -103,6 +103,33 @@ $stmt = $conn->prepare($stats_query);
 $stmt->bind_param("i", $doctor_id);
 $stmt->execute();
 $stats = $stmt->get_result()->fetch_assoc();
+
+// Function to get patient medical history
+function getPatientHistory($conn, $patient_id) {
+    $history_query = "SELECT c.id, c.chief_complaint, c.severity, c.status, c.created_at,
+                             c.ai_summary, c.symptoms, c.red_flags,
+                             GROUP_CONCAT(
+                                 CONCAT(
+                                     cr.created_at, '||',
+                                     u.full_name, '||',
+                                     cr.diagnosis_summary, '||',
+                                     cr.treatment_advice, '||',
+                                     cr.action
+                                 ) ORDER BY cr.created_at DESC SEPARATOR '::::'
+                             ) as replies
+                      FROM cases c
+                      LEFT JOIN case_replies cr ON c.id = cr.case_id
+                      LEFT JOIN users u ON cr.doctor_id = u.id
+                      WHERE c.patient_id = ?
+                      GROUP BY c.id
+                      ORDER BY c.created_at DESC
+                      LIMIT 10";
+    
+    $stmt = $conn->prepare($history_query);
+    $stmt->bind_param("i", $patient_id);
+    $stmt->execute();
+    return $stmt->get_result();
+}
 ?>
 
 <!DOCTYPE html>
@@ -442,6 +469,11 @@ input:checked + .slider:before {
     color: #374151;
 }
 
+.btn-history {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
 /* Modal */
 .modal {
     display: none;
@@ -461,7 +493,9 @@ input:checked + .slider:before {
     padding: 40px;
     border-radius: 18px;
     width: 90%;
-    max-width: 700px;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .modal-header {
@@ -529,6 +563,110 @@ input:checked + .slider:before {
     font-weight: 600;
 }
 
+/* Medical History Styles */
+.history-timeline {
+    margin-top: 24px;
+}
+
+.history-item {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border-left: 4px solid #cbd5e1;
+}
+
+.history-item.red { border-left-color: #dc2626; }
+.history-item.yellow { border-left-color: #f59e0b; }
+.history-item.green { border-left-color: #10b981; }
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.history-date {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.history-complaint {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.reply-section {
+    background: white;
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 12px;
+    border-left: 3px solid #0f766e;
+}
+
+.reply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.reply-doctor {
+    font-weight: 600;
+    color: #0f766e;
+    font-size: 14px;
+}
+
+.reply-date {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.reply-diagnosis {
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.action-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.action-badge.advice_given {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.action-badge.request_consult {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.action-badge.refer_facility {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.action-badge.close_case {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.no-history {
+    text-align: center;
+    color: #6b7280;
+    padding: 40px;
+    font-style: italic;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .stats-grid {
@@ -556,6 +694,12 @@ input:checked + .slider:before {
     
     .case-actions {
         flex-direction: column;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        padding: 24px;
+        width: calc(100% - 40px);
     }
 }
 </style>
@@ -731,6 +875,9 @@ input:checked + .slider:before {
                         <button class="btn btn-primary" onclick="openReplyModal(<?php echo $case['id']; ?>, '<?php echo htmlspecialchars($case['patient_name'], ENT_QUOTES); ?>')">
                             Send Reply
                         </button>
+                        <button class="btn btn-history" onclick="openHistoryModal(<?php echo $case['patient_id']; ?>, '<?php echo htmlspecialchars($case['patient_name'], ENT_QUOTES); ?>')">
+                            📋 Medical History
+                        </button>
                         <a href="case_detail.php?id=<?php echo $case['id']; ?>" class="btn btn-secondary">View Full Details</a>
                     </div>
                 </div>
@@ -738,6 +885,8 @@ input:checked + .slider:before {
         <?php endif; ?>
     </div>
 </div>
+
+
 
 <!-- Reply Modal -->
 <div id="replyModal" class="modal">
@@ -769,9 +918,9 @@ input:checked + .slider:before {
                 <label>Action *</label>
                 <select name="action" required>
                     <option value="advice_given">Advice Given (Close after review)</option>
-                    <option value="request_consult">Request Consult</option>
-                    <option value="refer_facility">Refer to Facility</option>
-                    <option value="close_case">Close Case</option>
+                    <option value="request_consult">Request In-Person Consultation</option>
+                    <option value="refer_facility">Refer to Medical Facility</option>
+                    <option value="close_case">Close Case (Resolved)</option>
                 </select>
             </div>
             
@@ -780,6 +929,20 @@ input:checked + .slider:before {
                 <button type="button" class="btn btn-secondary" onclick="closeReplyModal()">Cancel</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Medical History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 Medical History: <span id="historyPatientName"></span></h3>
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+        </div>
+        
+        <div id="historyContent">
+            <p style="text-align: center; color: #6b7280; padding: 20px;">Loading history...</p>
+        </div>
     </div>
 </div>
 
@@ -794,11 +957,35 @@ function closeReplyModal() {
     document.getElementById('replyModal').style.display = 'none';
 }
 
+function openHistoryModal(patientId, patientName) {
+    document.getElementById('historyPatientName').textContent = patientName;
+    document.getElementById('historyModal').style.display = 'block';
+    
+    // Load patient history via AJAX
+    fetch('getpatienthistory.php?patient_id=' + patientId)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('historyContent').innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('historyContent').innerHTML = 
+                '<p class="no-history">Error loading medical history. Please try again.</p>';
+        });
+}
+
+function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+}
+
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('replyModal');
-    if (event.target == modal) {
+    const replyModal = document.getElementById('replyModal');
+    const historyModal = document.getElementById('historyModal');
+    if (event.target == replyModal) {
         closeReplyModal();
+    }
+    if (event.target == historyModal) {
+        closeHistoryModal();
     }
 }
 </script>

@@ -48,8 +48,9 @@ Database: MySQL
 To ensure usability in rural and remote areas with unstable connectivity, the system is intentionally designed to be lightweight and resilient. The user interface is built using basic HTML and CSS with minimal JavaScript, allowing pages to load quickly even on slow networks and low-end devices.
 
 To prevent data loss during network interruptions, the application includes an offline submission mechanism. When internet connectivity is unavailable, patient case data is stored locally in the browser. Once the connection is restored, the system automatically submits the stored case for doctor review. This ensures that patients can still report symptoms without needing continuous internet access.
-<img width="2048" height="1158" alt="605444166_1417214983344810_2743742666305606620_n" src="https://github.com/user-attachments/assets/9b9c993d-360e-4b27-92f5-b40cb20a8d80" />
-<img width="2048" height="1161" alt="606801023_1519227599341009_5064187568355049498_n" src="https://github.com/user-attachments/assets/659d6715-4617-4b0a-b86b-4da455b815e3" />
-<img width="2048" height="1178" alt="599921341_865283326202219_3585983543988682064_n" src="https://github.com/user-attachments/assets/27909e2d-557b-47a8-b5e0-f1d0ac5bfdd2" />
+<img width="2048" height="1158" alt="607757915_1365909388051195_6179885588660355699_n" src="https://github.com/user-attachments/assets/7bb6a1af-23e3-4468-be7a-3b4acc42fa9e" />
+<img width="2048" height="1172" alt="606466616_1208847757242481_6413154727343138443_n" src="https://github.com/user-attachments/assets/0cc9cb93-e72f-46d3-9ede-0787631fd21b" />
+<img width="2048" height="1169" alt="606066779_1374350323995676_247087395937513173_n" src="https://github.com/user-attachments/assets/466fbbef-5d6e-4a0b-b396-e7bcbc113bfb" />
+
 
 This approach makes the system reliable and practical for real-world use in low-resource rural settings.

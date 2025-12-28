@@ -112,7 +112,7 @@ function getStatusStyle($status) {
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <a href="submit_case.php" style="background: white; color: #4CAF50; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">+ New Case</a>
-                <a href="index.html" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Logout</a>
+                <a href="logout.php" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">Logout</a>
             </div>
         </div>
     </div>

@@ -842,13 +842,6 @@ input:checked + .slider:before {
                         </div>
                         <?php endif; ?>
                         
-                        <?php if ($case['additional_notes']): ?>
-                        <div class="case-section">
-                            <div class="case-label">Additional Notes</div>
-                            <div class="case-text"><?php echo nl2br(htmlspecialchars($case['additional_notes'])); ?></div>
-                        </div>
-                        <?php endif; ?>
-                        
                         <?php if ($case['ai_summary']): ?>
                         <div class="ai-summary">
                             <div class="case-label">AI Assessment</div>

@@ -174,6 +174,112 @@ function getStatusStyle($status) {
             </div>
         </div>
 
+        <!-- Results Section (Cases with Doctor Replies) -->
+        <?php
+        // Get cases with doctor replies
+        $stmt = $pdo->prepare("
+            SELECT 
+                c.*,
+                d.full_name as doctor_name,
+                dp.specialty as doctor_specialty,
+                cr.diagnosis_summary,
+                cr.treatment_advice,
+                cr.action as reply_action,
+                cr.created_at as reply_date
+            FROM cases c
+            INNER JOIN case_replies cr ON c.id = cr.case_id
+            LEFT JOIN users d ON cr.doctor_id = d.id
+            LEFT JOIN doctor_profiles dp ON d.id = dp.user_id
+            WHERE c.patient_id = ?
+            ORDER BY cr.created_at DESC
+            LIMIT 5
+        ");
+        $stmt->execute([$user_id]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        ?>
+
+        <?php if (!empty($results)): ?>
+        <div style="background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #2e7d32; font-size: 20px;">Recent Results</h2>
+                <a href="result.php" style="color: #4CAF50; text-decoration: none; font-weight: 600; font-size: 14px;">View All →</a>
+            </div>
+            
+            <?php foreach ($results as $result): ?>
+                <div style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; cursor: pointer;" 
+                     onmouseover="this.style.borderColor='#4CAF50'; this.style.backgroundColor='#f9fdf9'" 
+                     onmouseout="this.style.borderColor='#e0e0e0'; this.style.backgroundColor='white'"
+                     onclick="window.location.href='result.php?case_id=<?php echo $result['id']; ?>'">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1; min-width: 250px;">
+                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                                <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                    ✓ REPLIED
+                                </span>
+                                <span style="<?php echo getSeverityStyle($result['severity']); ?>">
+                                    <?php echo $result['severity']; ?>
+                                </span>
+                            </div>
+                            
+                            <h3 style="margin: 0 0 8px 0; color: #212121; font-size: 16px; font-weight: 600;">
+                                <?php echo htmlspecialchars($result['chief_complaint']); ?>
+                            </h3>
+                            
+                            <div style="color: #4CAF50; font-size: 14px; margin-bottom: 8px; font-weight: 600;">
+                                Dr. <?php echo htmlspecialchars($result['doctor_name']); ?>
+                                <span style="color: #999; font-weight: 400;">• <?php echo ucfirst($result['doctor_specialty']); ?></span>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <div style="color: #666; font-size: 13px; margin-bottom: 3px;">
+                                Replied on
+                            </div>
+                            <div style="color: #2e7d32; font-size: 13px; font-weight: 600;">
+                                <?php echo date('M d, Y', strtotime($result['reply_date'])); ?>
+                            </div>
+                            <div style="color: #999; font-size: 12px;">
+                                <?php echo date('h:i A', strtotime($result['reply_date'])); ?>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fdf9; border-left: 3px solid #4CAF50; padding: 12px 15px; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="color: #2e7d32; font-size: 12px; font-weight: 600; margin-bottom: 5px;">DIAGNOSIS</div>
+                        <div style="color: #424242; font-size: 14px; line-height: 1.5;">
+                            <?php echo htmlspecialchars(substr($result['diagnosis_summary'], 0, 120)) . (strlen($result['diagnosis_summary']) > 120 ? '...' : ''); ?>
+                        </div>
+                    </div>
+                    
+                    <?php if ($result['treatment_advice']): ?>
+                    <div style="background: #fffef5; border-left: 3px solid #ff9800; padding: 12px 15px; border-radius: 4px; margin-bottom: 10px;">
+                        <div style="color: #e65100; font-size: 12px; font-weight: 600; margin-bottom: 5px;">TREATMENT ADVICE</div>
+                        <div style="color: #424242; font-size: 14px; line-height: 1.5;">
+                            <?php echo htmlspecialchars(substr($result['treatment_advice'], 0, 120)) . (strlen($result['treatment_advice']) > 120 ? '...' : ''); ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                        <div style="font-size: 12px; color: #666;">
+                            <?php
+                            $action_labels = [
+                                'advice_given' => '💊 Advice Given',
+                                'request_consult' => '📞 Consult Requested',
+                                'refer_facility' => '🏥 Referred to Facility',
+                                'close_case' => '✓ Case Closed'
+                            ];
+                            echo $action_labels[$result['reply_action']] ?? 'Action Taken';
+                            ?>
+                        </div>
+                        <span style="color: #4CAF50; font-weight: 600; font-size: 14px;">View Full Result →</span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- Cases Section -->
         <div style="background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <h2 style="margin: 0 0 20px 0; color: #2e7d32; font-size: 20px;">My Cases</h2>

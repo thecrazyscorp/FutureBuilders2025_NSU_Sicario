@@ -91,7 +91,7 @@ $stmt->bind_param("is", $doctor_id, $doctor['specialty']);
 $stmt->execute();
 $cases = $stmt->get_result();
 
-// Get statistics - FIXED QUERY
+// Get statistics
 $stats_query = "SELECT 
                     COUNT(*) as total,
                     SUM(CASE WHEN severity = 'RED' THEN 1 ELSE 0 END) as red_count,
